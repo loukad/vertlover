@@ -1,0 +1,21 @@
+<layouts>
+    <!-- A generic, centered layout. -->
+    <layout id="MainLayout">
+        <drawable class="Background" />
+        <bitmap id="hearticon" filename="heart.png" x="40" y="37" />
+        <bitmap id="cadenceicon" filename="cadence.png" x="180" y="37" />
+        <drawable class="SkeletonGrid" id="skeleton_lines">
+            <param name="points">[ 35, 63, 97, 161]</param>
+        </drawable>
+        <drawable class="ProgressArcBar" id="batterybar">
+            <param name="color">Gfx.COLOR_DK_GREEN</param>
+            <param name="clockwise">true</param>
+            <param name="thickness">4</param>
+        </drawable>
+        <drawable class="ProgressArcBar" id="gpsbar">
+            <param name="color">Gfx.COLOR_BLUE</param>
+            <param name="clockwise">false</param>
+            <param name="thickness">4</param>
+        </drawable>
+    </layout>
+</layouts>
