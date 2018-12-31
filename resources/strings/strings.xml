@@ -1,3 +1,5 @@
 <strings>
     <string id="AppName">VertLover</string>
+    <string id="speedNotPace">Show speed instead of pace</string>
+    <string id="tempNotCadence">Show temperature instead of cadence</string>
 </strings>

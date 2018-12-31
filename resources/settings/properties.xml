@@ -1,0 +1,4 @@
+<properties>
+    <property id="speedNotPace" type="boolean">false</property>
+    <property id="tempNotCadence" type="boolean">false</property>
+</properties>

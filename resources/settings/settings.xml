@@ -1,0 +1,8 @@
+<settings>
+    <setting propertyKey="@Properties.speedNotPace" title="@Strings.speedNotPace">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.tempNotCadence" title="@Strings.tempNotCadence">
+        <settingConfig type="boolean" />
+    </setting>
+</settings>
