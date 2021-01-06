@@ -20,16 +20,29 @@ class VertLoverScreenView extends Ui.DataField {
     hidden var mPace, mAvgPace;
     hidden var mSpeed, mAvgSpeed;
     hidden var mDistance;
-    hidden var mDistanceUnit;
     hidden var mGPSAccuracy;
-
-    hidden var mMetricDistance, mMetricElevation, mCelsius;
 
     hidden const DASHDASH = "--";
     hidden const DASHDASH_TIME = "--:--";
     hidden const CENTER = Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER;
     hidden const RIGHT = Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER;
     hidden const LEFT = Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER;
+
+    function isMetricDistance() {
+        return System.getDeviceSettings().distanceUnits == System.UNIT_METRIC;
+    }
+
+    function isMetricElevation() {
+        return System.getDeviceSettings().elevationUnits == System.UNIT_METRIC;
+    }
+
+    function isCelsius() {
+        return System.getDeviceSettings().temperatureUnits == System.UNIT_METRIC;
+    }
+
+    function distanceUnitStr() {
+        return isMetricDistance() ? "km" : "mi";
+    }
 
     function initialize() {
         DataField.initialize();
@@ -47,10 +60,6 @@ class VertLoverScreenView extends Ui.DataField {
         mDescent = "0";
         mDistance = "0.00";
         mGPSAccuracy = 0;
-        mMetricDistance = System.getDeviceSettings().distanceUnits == System.UNIT_METRIC;
-        mMetricElevation = System.getDeviceSettings().elevationUnits == System.UNIT_METRIC;
-        mCelsius = System.getDeviceSettings().temperatureUnits == System.UNIT_METRIC;
-        mDistanceUnit = mMetricDistance ? "km" : "mi";
     }
 
     // Set your layout here. Anytime the size of obscurity of
@@ -89,7 +98,7 @@ class VertLoverScreenView extends Ui.DataField {
             }
             if (latest != null) {
                 var t = latest.data.toDouble();
-                mTemp = mCelsius ? t.format("%.1f") : (t * 9/5.0 + 32).format("%.1f");
+                mTemp = isCelsius() ? t.format("%.1f") : (t * 9/5.0 + 32).format("%.1f");
             }
         }
         if (info.timerTime != null) {
@@ -98,11 +107,11 @@ class VertLoverScreenView extends Ui.DataField {
             var hours = (info.timerTime / 3600000).format("%d");
             mElapsedTime = hours + ":" + minutes + ":" + seconds;
         }
-        var hscale = mMetricDistance ? 1000 : 1609.34;
+        var hscale = isMetricDistance() ? 1000 : 1609.34;
         if (info.elapsedDistance != null) {
             mDistance = (info.elapsedDistance / hscale).format("%.2f");
         }
-        var speedFactor = mMetricDistance ? 3.6 : 2.23694;
+        var speedFactor = isMetricDistance() ? 3.6 : 2.23694;
          if (info.currentSpeed != null) {
              mPace = getPaceString(info.currentSpeed);
              mSpeed = (info.currentSpeed * speedFactor).format("%.1f");
@@ -112,8 +121,8 @@ class VertLoverScreenView extends Ui.DataField {
             mAvgSpeed = (info.averageSpeed * speedFactor).format("%.1f");
         }
 
-        var vscale = mMetricElevation ? 1 : 3.28084;
-        var vunit = mMetricElevation ? "m" : "'";
+        var vscale = isMetricElevation() ? 1 : 3.28084;
+        var vunit = isMetricElevation() ? "m" : "'";
         if (info.altitude != null) {
             mElevation = (info.altitude * vscale).format("%d") + vunit;
         }
@@ -175,12 +184,12 @@ class VertLoverScreenView extends Ui.DataField {
 
         // Pace or Speed
         if (Application.Properties.getValue("speedNotPace")) {
-            var speedUnit = mMetricDistance ? "km/h" : "mph";
+            var speedUnit = isMetricDistance() ? "km/h" : "mph";
             dc.drawText(dc.getWidth() / 2, 177, Gfx.FONT_XTINY, speedUnit, CENTER);
             dc.drawText(dc.getWidth() / 2 - 20, 177, Gfx.FONT_MEDIUM, mSpeed + " ", RIGHT);
             dc.drawText(dc.getWidth() / 2 + 20, 177, Gfx.FONT_MEDIUM, " " + mAvgSpeed, LEFT);
         } else {
-            dc.drawText(dc.getWidth() / 2, 177, Gfx.FONT_XTINY, "/" + mDistanceUnit, CENTER);
+            dc.drawText(dc.getWidth() / 2, 177, Gfx.FONT_XTINY, "/" + distanceUnitStr(), CENTER);
             dc.drawText(dc.getWidth() / 2 - 20, 177, Gfx.FONT_MEDIUM, mPace, RIGHT);
             dc.drawText(dc.getWidth() / 2 + 20, 177, Gfx.FONT_MEDIUM, mAvgPace, LEFT);
         }
@@ -191,7 +200,7 @@ class VertLoverScreenView extends Ui.DataField {
     }
 
     function getPaceString(speed) {
-          var pscale = mMetricDistance ? 16.6667 : 26.8224;
+          var pscale = isMetricDistance() ? 16.6667 : 26.8224;
           if (speed < 0.2) {
               return DASHDASH_TIME;
           }
