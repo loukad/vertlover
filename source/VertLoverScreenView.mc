@@ -52,10 +52,9 @@ class VertLoverScreenView extends Ui.DataField {
         mSpeed = "0.0";
         mAvgSpeed = "0.0";
         mElevation = "0";
-        mAscent = "12000";
+        mAscent = "0";
         mDescent = "0";
-        mDistance = "10.00";
-        mDistancePartial = ".00";
+        mDistance = "0.00";
         mGPSAccuracy = 0;
     }
 
@@ -136,9 +135,6 @@ class VertLoverScreenView extends Ui.DataField {
         var hscale = mIsMetricDistance ? 1000 : 1609.34;
         if (info.elapsedDistance != null) {
             mDistance = (info.elapsedDistance / hscale).format("%.2f");
-            var distLen = mDistance.length();
-            mDistancePartial = mDistance.substring(distLen - 3, distLen);
-            //mDistance = mDistance.substring(0, distLen - 3);
         }
         var speedFactor = mIsMetricDistance ? 3.6 : 2.23694;
          if (info.currentSpeed != null) {
@@ -208,7 +204,10 @@ class VertLoverScreenView extends Ui.DataField {
         dc.setColor(getForegroundColor(), Gfx.COLOR_TRANSPARENT);
 
         // Elevation
-        mAscentLabel.setText("+" + mAscent);
+        var wide = (dc.getWidth() > 240 && mAscent.length() > 4);
+        var ascentFont = wide ? Gfx.FONT_NUMBER_MEDIUM : Gfx.FONT_NUMBER_HOT;
+        mAscentLabel.setFont(ascentFont);
+        mAscentLabel.setText((mAscent.length() < 5 ? "+" : "") + mAscent);
         mDescentLabel.setText("-" + mDescent);
         mElevationLabel.setText(mElevation);
 

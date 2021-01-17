@@ -1,7 +1,11 @@
 <iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
-    <iq:application entry="VertLoverScreenApp" id="320e7890b30743eb8b1b66ddbacbf3f1" launcherIcon="@Drawables.LauncherIcon" name="@Strings.AppName" type="datafield" version="1.1.0">
+    <iq:application entry="VertLoverScreenApp" id="320e7890b30743eb8b1b66ddbacbf3f1"
+        launcherIcon="@Drawables.LauncherIcon" name="@Strings.AppName"
+        type="datafield" version="1.2.0">
         <iq:products>
+            <iq:product id="fr745"/>
             <iq:product id="fr935"/>
+            <iq:product id="fr945"/>
             <iq:product id="fenix5"/>
             <iq:product id="fenix5plus"/>
             <iq:product id="fenix5s"/>
@@ -14,6 +18,18 @@
             <iq:product id="fenix6spro"/>
             <iq:product id="fenix6xpro"/>
             <iq:product id="fenixchronos"/>
+            <iq:product id="marqadventurer"/>
+            <iq:product id="marqathlete"/>
+            <iq:product id="marqaviator"/>
+            <iq:product id="marqcaptain"/>
+            <iq:product id="marqcommander"/>
+            <iq:product id="marqdriver"/>
+            <iq:product id="marqexpedition"/>
+            <iq:product id="marqgolfer"/>
+            <iq:product id="venu"/>
+            <iq:product id="venud"/>
+            <iq:product id="vivoactive4"/>
+            <iq:product id="vivoactive4s"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="SensorHistory"/>

@@ -28,11 +28,11 @@
         <drawable id="skeleton"></drawable>
 
         <!-- Elevation, ascent, and descent -->
-        <label id="ascent" x="center" y="47%" font="Gfx.FONT_NUMBER_HOT"
-            justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" />
-        <label id="descent" x="10%" y="62%" font="Gfx.FONT_SMALL"
-            justification="Gfx.TEXT_JUSTIFY_LEFT|Gfx.TEXT_JUSTIFY_VCENTER" />
-        <label id="elevation" x="90%" y="62%" font="Gfx.FONT_SMALL"
+        <label id="ascent" x="65%" y="50%" font="Gfx.FONT_NUMBER_HOT"
+            justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
+        <label id="elevation" x="95%" y="44%" font="Gfx.FONT_MEDIUM"
+            justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
+        <label id="descent" x="95%" y="56%" font="Gfx.FONT_MEDIUM"
             justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
 
         <!-- Pace or speed -->
