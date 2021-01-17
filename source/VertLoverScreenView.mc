@@ -279,6 +279,7 @@ class HeartRateDisplay extends Ui.Drawable {
             color = Gfx.COLOR_DK_GRAY;
         } else if (mValue < mZones[1]) {
             color = Gfx.COLOR_LT_GRAY;
+            fgColor = Gfx.COLOR_BLACK;
         } else if (mValue < mZones[2]) {
             color = Gfx.COLOR_DK_BLUE;
         } else if (mValue < mZones[3]) {
