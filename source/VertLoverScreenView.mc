@@ -2,6 +2,7 @@ using Toybox.WatchUi as Ui;
 using Toybox.Graphics as Gfx;
 using Toybox.Application as App;
 using Toybox.SensorHistory;
+using Toybox.UserProfile as UProf;
 
 class VertLoverScreenApp extends App.AppBase {
     function initialize() {
@@ -16,7 +17,7 @@ class VertLoverScreenView extends Ui.DataField {
 
     hidden var mElevation, mAscent, mDescent;
     hidden var mElapsedTime;
-    hidden var mHeartRate, mAvgHeartRate, mCadence, mTemp;
+    hidden var mCadence, mTemp;
     hidden var mPace, mAvgPace;
     hidden var mSpeed, mAvgSpeed;
     hidden var mDistance, mDistancePartial;
@@ -24,7 +25,13 @@ class VertLoverScreenView extends Ui.DataField {
 
     // Labels in layout
     hidden var mBackground;
-    hidden var mClockLabel, mTimerLabel;
+    hidden var mClockLabel, mTimerLabel, mTempLabel;
+    hidden var mAscentLabel, mDescentLabel, mElevationLabel;
+    hidden var mCurPaceLabel, mAvgPaceLabel, mPaceUnitLabel;
+    hidden var mDistLabel;
+
+    hidden var mBatteryBar, mGPSBar;
+    hidden var mCurHRField, mAvgHRField;
 
     hidden const DASHDASH = "--";
     hidden const DASHDASH_TIME = "--:--";
@@ -33,11 +40,10 @@ class VertLoverScreenView extends Ui.DataField {
     hidden const LEFT = Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER;
 
     hidden var mIsMetricDistance, mIsMetricElevation, mIsCelsius;
+    hidden var mSpeedNotPace;
 
     function initialize() {
         DataField.initialize();
-        mHeartRate = DASHDASH;
-        mAvgHeartRate = DASHDASH;
         mCadence = DASHDASH;
         mTemp = DASHDASH;
         mElapsedTime = "00:00";
@@ -46,9 +52,9 @@ class VertLoverScreenView extends Ui.DataField {
         mSpeed = "0.0";
         mAvgSpeed = "0.0";
         mElevation = "0";
-        mAscent = "+0";
+        mAscent = "12000";
         mDescent = "0";
-        mDistance = "100";
+        mDistance = "10.00";
         mDistancePartial = ".00";
         mGPSAccuracy = 0;
     }
@@ -63,12 +69,29 @@ class VertLoverScreenView extends Ui.DataField {
         mBackground = View.findDrawableById("background");
         mClockLabel = View.findDrawableById("clock");
         mTimerLabel = View.findDrawableById("timer");
+        mTempLabel = View.findDrawableById("temp");
+        mAscentLabel = View.findDrawableById("ascent");
+        mDescentLabel = View.findDrawableById("descent");
+        mElevationLabel = View.findDrawableById("elevation");
+        mCurPaceLabel = View.findDrawableById("curPace");
+        mAvgPaceLabel = View.findDrawableById("avgPace");
+        mPaceUnitLabel = View.findDrawableById("paceUnit");
+        mDistLabel = View.findDrawableById("distance");
+
+        mCurHRField = View.findDrawableById("curHR");
+        mAvgHRField = View.findDrawableById("avgHR");
+
+        mBatteryBar = View.findDrawableById("batterybar");
+        mGPSBar = View.findDrawableById("gpsbar");
 
         // System settings cache
         var settings = System.getDeviceSettings();
         mIsMetricDistance = settings.distanceUnits == System.UNIT_METRIC;
         mIsMetricElevation = settings.elevationUnits == System.UNIT_METRIC;
         mIsCelsius = settings.temperatureUnits == System.UNIT_METRIC;
+
+        // Settings
+        mSpeedNotPace = Application.Properties.getValue("speedNotPace");
 
         return true;
     }
@@ -82,19 +105,18 @@ class VertLoverScreenView extends Ui.DataField {
             return;
         }
 
-        if (info has :currentHeartRate && info.currentHeartRate != null) {
-            mHeartRate = info.currentHeartRate;
+        if (info has :currentHeartRate) {
+            mCurHRField.setValue(info.currentHeartRate);
         }
-        if (info has :averageHeartRate && info.averageHeartRate != null) {
-            mAvgHeartRate = info.averageHeartRate;
+        if (info has :averageHeartRate) {
+            mAvgHRField.setValue(info.averageHeartRate);
         }
         if (info.currentCadence != null) {
             mCadence = info.currentCadence.format("%d");
         }
         // If the user prefers showing temperature in place of cadence, get the internal
         // device temperature from the SensorHistory class
-        if (Application.Properties.getValue("tempNotCadence") &&
-            Toybox has :SensorHistory && Toybox.SensorHistory has :getTemperatureHistory) {
+        if (Toybox has :SensorHistory && Toybox.SensorHistory has :getTemperatureHistory) {
             var it = SensorHistory.getTemperatureHistory({});
             var latest = null;
             if (it != null) {
@@ -102,7 +124,7 @@ class VertLoverScreenView extends Ui.DataField {
             }
             if (latest != null) {
                 var t = latest.data.toDouble();
-                mTemp = mIsCelsius ? t.format("%.1f") : (t * 9/5.0 + 32).format("%.1f");
+                mTemp = mIsCelsius ? t.format("%d") : (t * 9/5.0 + 32).format("%d");
             }
         }
         if (info.timerTime != null) {
@@ -116,7 +138,7 @@ class VertLoverScreenView extends Ui.DataField {
             mDistance = (info.elapsedDistance / hscale).format("%.2f");
             var distLen = mDistance.length();
             mDistancePartial = mDistance.substring(distLen - 3, distLen);
-            mDistance = mDistance.substring(0, distLen - 3);
+            //mDistance = mDistance.substring(0, distLen - 3);
         }
         var speedFactor = mIsMetricDistance ? 3.6 : 2.23694;
          if (info.currentSpeed != null) {
@@ -131,14 +153,14 @@ class VertLoverScreenView extends Ui.DataField {
         var vscale = mIsMetricElevation ? 1 : 3.28084;
         var vunit = mIsMetricElevation ? "m" : "'";
         if (info.altitude != null) {
-            mElevation = (info.altitude * vscale).format("%d") + vunit;
+            mElevation = (info.altitude * vscale).format("%d");
         }
         if (info.totalAscent != null) {
-            mAscent = "+" + (info.totalAscent * vscale).format("%d");
+            mAscent = (info.totalAscent * vscale).format("%d");
         }
         if (info.totalDescent != null) {
-             mDescent = (info.totalDescent * vscale).format("%d") + vunit;
-         }
+            mDescent = (info.totalDescent * vscale).format("%d");
+        }
 
         if (info.currentLocationAccuracy != null) {
             mGPSAccuracy = info.currentLocationAccuracy / 4.0;
@@ -175,49 +197,37 @@ class VertLoverScreenView extends Ui.DataField {
         // Clock time and current time
         renderClockAndTime();
 
+        mTempLabel.setText(mTemp + "°" + (mIsCelsius ? "C" : "F"));
+
+        // Battery and GPS bars
+        mBatteryBar.setPercent(System.getSystemStats().battery / 100.0);
+        mGPSBar.setPercent(mGPSAccuracy);
+
         View.onUpdate(dc);
+
         dc.setColor(getForegroundColor(), Gfx.COLOR_TRANSPARENT);
 
-        var centerX = dc.getWidth() / 2, margin = 5;
-
-
-        // Heart rate and cadence or temp
-        var cadenceOrTemp = Application.Properties.getValue("tempNotCadence") ? mTemp : mCadence;
-        var hr = mHeartRate + "  " + mAvgHeartRate + "  " + cadenceOrTemp;
-        dc.drawText(centerX, 80, Gfx.FONT_LARGE, hr, CENTER);
-
         // Elevation
-        dc.drawText(centerX + 10, 113, Gfx.FONT_LARGE, " " + mElevation, LEFT);
-        dc.drawText(centerX + 10, 143, Gfx.FONT_LARGE, "-" + mDescent, LEFT);
-//        dc.drawText(centerX + 10, 143, Gfx.FONT_LARGE, "-", RIGHT);
-        dc.drawText(centerX / 2 + 10, 128, Gfx.FONT_NUMBER_MEDIUM, mAscent, CENTER);
+        mAscentLabel.setText("+" + mAscent);
+        mDescentLabel.setText("-" + mDescent);
+        mElevationLabel.setText(mElevation);
 
         // Pace or Speed
-        if (Application.Properties.getValue("speedNotPace")) {
-            var speedUnit = mIsMetricDistance ? "km/h" : "mph";
-            dc.drawText(centerX, 177, Gfx.FONT_XTINY, speedUnit, CENTER);
-            dc.drawText(centerX - 20, 177, Gfx.FONT_MEDIUM, mSpeed + " ", RIGHT);
-            dc.drawText(centerX + 20, 177, Gfx.FONT_MEDIUM, " " + mAvgSpeed, LEFT);
+        if (mSpeedNotPace) {
+            mPaceUnitLabel.setText(mIsMetricDistance ? "km/h" : "mph");
+            mCurPaceLabel.setText(mSpeed);
+            mAvgPaceLabel.setText(mAvgSpeed);
         } else {
-            var distUnit = mIsMetricDistance ? "km" : "mi";
-            dc.drawText(centerX, 177, Gfx.FONT_XTINY, "/" + distUnit, CENTER);
-            dc.drawText(centerX - 20, 177, Gfx.FONT_MEDIUM, mPace, RIGHT);
-            dc.drawText(centerX + 20, 177, Gfx.FONT_MEDIUM, mAvgPace, LEFT);
+            mPaceUnitLabel.setText(mIsMetricDistance ? "/km" : "/mi");
+            mCurPaceLabel.setText(mPace);
+            mAvgPaceLabel.setText(mAvgPace);
         }
 
         // Distance
-        var distFont = mDistance.length() > 4 ? Gfx.FONT_NUMBER_MILD : Gfx.FONT_NUMBER_MEDIUM;
-        var partFont = Gfx.FONT_NUMBER_MILD;
-        var distY = dc.getHeight() - dc.getFontHeight(distFont) / 2;
-        var distWidth = dc.getTextWidthInPixels(mDistance, distFont);
-        var partDistX = centerX + distWidth / 2;
-        var partDistY = distY - dc.getFontHeight(partFont);
-        dc.drawText(centerX, distY, distFont, mDistance, CENTER);
-        dc.drawText(partDistX, partDistY, partFont, mDistancePartial, Gfx.TEXT_JUSTIFY_LEFT);
-
-        // Battery and GPS bars
-        View.findDrawableById("batterybar").setPercent(System.getSystemStats().battery / 100.0);
-        View.findDrawableById("gpsbar").setPercent(mGPSAccuracy);
+        mDistLabel.setText(mDistance);
+        if (mDistance.length() > 5) {
+            mDistLabel.setFont(Gfx.FONT_LARGE);
+        }
     }
 
     function getPaceString(speed) {
@@ -229,12 +239,54 @@ class VertLoverScreenView extends Ui.DataField {
         var seconds = (minutes - minutes.toLong()) * 60;
         return minutes.format("%d") + ":" + seconds.format("%02d");
     }
-
-
 }
 
 class HeartRateDisplay extends Ui.Drawable {
+    hidden var mZones;
+    hidden var mFont, mMargin, mRadius;
+    hidden var mAlign;
+    hidden var mValue;
+    hidden var mHeight;
 
+    function initialize(params) {
+        Drawable.initialize(params);
+        mZones = UProf.getHeartRateZones(UProf.HR_ZONE_SPORT_GENERIC);
+        mFont = params.get(:font);
+        mMargin = params has :margin ? params.get(:margin) : 5;
+        mRadius = params has :radius ? params.get(:radius) : 5;
+        mHeight = Gfx.getFontHeight(mFont) + mMargin;
+        mAlign = Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER;
+    }
+
+    function setValue(value) {
+        mValue = value;
+    }
+
+    function draw(dc) {
+        var disp = mValue != null ? mValue : "--";
+
+        var color = Gfx.COLOR_DK_GRAY;
+        if (mValue == null) {
+            color = Gfx.COLOR_DK_GRAY;
+        } else if (mValue < mZones[0]) {
+            color = Gfx.COLOR_DK_GRAY;
+        } else if (mValue < mZones[1]) {
+            color = Gfx.COLOR_DK_BLUE;
+        } else if (mValue < mZones[2]) {
+            color = Gfx.COLOR_DK_GREEN;
+        } else if (mValue < mZones[3]) {
+            color = Gfx.COLOR_ORANGE;
+        } else {
+            color = Gfx.COLOR_DK_RED;
+        }
+
+        dc.setColor(color, color);
+        width = dc.getTextWidthInPixels("999", mFont) + mMargin;
+        dc.fillRoundedRectangle(locX - width / 2, locY - mHeight / 2,
+                                width, mHeight, mRadius);
+        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+        dc.drawText(locX, locY, mFont, disp, mAlign);
+    }
 }
 
 class ProgressArcBar extends Ui.Drawable {
@@ -291,8 +343,8 @@ class Background extends Ui.Drawable {
 
     hidden var mColor;
 
-    function initialize() {
-        Drawable.initialize( { :identifier => "background" } );
+    function initialize(params) {
+        Drawable.initialize(params);
     }
 
     function setColor(color) {

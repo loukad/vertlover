@@ -1,16 +1,51 @@
 <layouts>
     <layout id="MainLayout">
-        <drawable class="background" />
+        <drawable id="background" class="Background" />
 
         <!-- Clock and time -->
-        <label id="clock" x="center" y="8%" font="Gfx.FONT_SMALL"
+        <label id="timer" x="center" y="10%" font="Gfx.FONT_SMALL"
             justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" />
-        <label id="timer" x="center" y="18%" font="Gfx.FONT_SMALL"
+        <label id="clock" x="center" y="20%" font="Gfx.FONT_SMALL"
+            justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" />
+        <label id="temp" x="center" y="30%" font="Gfx.FONT_SMALL"
             justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" />
 
         <!-- Heart Rate indicators -->
-        <drawable class="HeartRateDisplay" id="curHR" x="20%" y="20%" />
-        <drawable class="HeartRateDisplay" id="avgHR" x="80%" y="20%" />
+        <drawable id="curHR" class="HeartRateDisplay">
+            <!-- for some reason, the Drawable loc{X|Y} params do not accept
+                percentage values.  Need to figure out how to suppress the
+            resulting warning below. -->
+            <param name="locX">.25 * dc.getWidth()</param>
+            <param name="locY">.25 * dc.getHeight()</param>
+            <param name="font">Gfx.FONT_MEDIUM</param>
+        </drawable>
+        <drawable id="avgHR" class="HeartRateDisplay">
+            <param name="locX">.75 * dc.getWidth()</param>
+            <param name="locY">.25 * dc.getHeight()</param>
+            <param name="font">Gfx.FONT_MEDIUM</param>
+        </drawable>
+
+        <drawable id="skeleton"></drawable>
+
+        <!-- Elevation, ascent, and descent -->
+        <label id="ascent" x="center" y="47%" font="Gfx.FONT_NUMBER_HOT"
+            justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" />
+        <label id="descent" x="10%" y="62%" font="Gfx.FONT_SMALL"
+            justification="Gfx.TEXT_JUSTIFY_LEFT|Gfx.TEXT_JUSTIFY_VCENTER" />
+        <label id="elevation" x="90%" y="62%" font="Gfx.FONT_SMALL"
+            justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
+
+        <!-- Pace or speed -->
+        <label id="curPace" x="40%" y="73%" font="Gfx.FONT_MEDIUM"
+            justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
+        <label id="paceUnit" x="center" y="73%" font="Gfx.FONT_SYSTEM_TINY"
+            justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" />
+        <label id="avgPace" x="60%" y="73%" font="Gfx.FONT_MEDIUM"
+            justification="Gfx.TEXT_JUSTIFY_LEFT|Gfx.TEXT_JUSTIFY_VCENTER" />
+
+        <!-- Distance -->
+        <label id="distance" x="50%" y="87%" font="Gfx.FONT_NUMBER_MEDIUM"
+            justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" />
 
         <!-- Arc indicators -->
         <drawable class="ProgressArcBar" id="batterybar">
