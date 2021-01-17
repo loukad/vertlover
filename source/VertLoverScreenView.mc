@@ -16,8 +16,7 @@ class VertLoverScreenApp extends App.AppBase {
 class VertLoverScreenView extends Ui.DataField {
 
     hidden var mElevation, mAscent, mDescent;
-    hidden var mElapsedTime;
-    hidden var mCadence, mTemp;
+    hidden var mElapsedTime, mTemp;
     hidden var mPace, mAvgPace;
     hidden var mSpeed, mAvgSpeed;
     hidden var mDistance, mDistancePartial;
@@ -33,7 +32,9 @@ class VertLoverScreenView extends Ui.DataField {
     hidden var mBatteryBar, mGPSBar;
     hidden var mCurHRField, mAvgHRField;
 
-    hidden const DASHDASH = "--";
+    hidden var mLastFgColor;
+    hidden var mTextFields;
+
     hidden const DASHDASH_TIME = "--:--";
     hidden const CENTER = Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER;
     hidden const RIGHT = Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER;
@@ -44,8 +45,7 @@ class VertLoverScreenView extends Ui.DataField {
 
     function initialize() {
         DataField.initialize();
-        mCadence = DASHDASH;
-        mTemp = DASHDASH;
+        mTemp = "--";
         mElapsedTime = "00:00";
         mPace = DASHDASH_TIME;
         mAvgPace = DASHDASH_TIME;
@@ -58,12 +58,9 @@ class VertLoverScreenView extends Ui.DataField {
         mGPSAccuracy = 0;
     }
 
-    // Set your layout here. Anytime the size of obscurity of
-    // the draw context is changed this will be called.
+    // Called any time the draw context is changed.
     function onLayout(dc) {
         View.setLayout(Rez.Layouts.MainLayout(dc));
-
-        System.println("Screen size: " + dc.getWidth() + " x " + dc.getHeight());
 
         mBackground = View.findDrawableById("background");
         mClockLabel = View.findDrawableById("clock");
@@ -76,6 +73,11 @@ class VertLoverScreenView extends Ui.DataField {
         mAvgPaceLabel = View.findDrawableById("avgPace");
         mPaceUnitLabel = View.findDrawableById("paceUnit");
         mDistLabel = View.findDrawableById("distance");
+
+        mTextFields = [mClockLabel, mTimerLabel, mTempLabel,
+            mAscentLabel, mDescentLabel, mElevationLabel, mCurPaceLabel,
+            mAvgPaceLabel, mPaceUnitLabel, mDistLabel];
+        mLastFgColor = null;
 
         mCurHRField = View.findDrawableById("curHR");
         mAvgHRField = View.findDrawableById("avgHR");
@@ -96,8 +98,8 @@ class VertLoverScreenView extends Ui.DataField {
     }
 
     // The given info object contains all the current workout information.
-    // Calculate a value and save it locally in this method.
-    // Note that compute() and onUpdate() are asynchronous, and there is no
+    // Calculates all the field values to be displayed.  Note that
+    // compute() and onUpdate() are asynchronous, and there is no
     // guarantee that compute() will be called before onUpdate().
     function compute(info) {
         if (info == null) {
@@ -110,9 +112,7 @@ class VertLoverScreenView extends Ui.DataField {
         if (info has :averageHeartRate) {
             mAvgHRField.setValue(info.averageHeartRate);
         }
-        if (info.currentCadence != null) {
-            mCadence = info.currentCadence.format("%d");
-        }
+
         // If the user prefers showing temperature in place of cadence, get the internal
         // device temperature from the SensorHistory class
         if (Toybox has :SensorHistory && Toybox.SensorHistory has :getTemperatureHistory) {
@@ -137,7 +137,7 @@ class VertLoverScreenView extends Ui.DataField {
             mDistance = (info.elapsedDistance / hscale).format("%.2f");
         }
         var speedFactor = mIsMetricDistance ? 3.6 : 2.23694;
-         if (info.currentSpeed != null) {
+        if (info.currentSpeed != null) {
              mPace = getPaceString(info.currentSpeed);
              mSpeed = (info.currentSpeed * speedFactor).format("%.1f");
         }
@@ -147,7 +147,6 @@ class VertLoverScreenView extends Ui.DataField {
         }
 
         var vscale = mIsMetricElevation ? 1 : 3.28084;
-        var vunit = mIsMetricElevation ? "m" : "'";
         if (info.altitude != null) {
             mElevation = (info.altitude * vscale).format("%d");
         }
@@ -199,10 +198,6 @@ class VertLoverScreenView extends Ui.DataField {
         mBatteryBar.setPercent(System.getSystemStats().battery / 100.0);
         mGPSBar.setPercent(mGPSAccuracy);
 
-        View.onUpdate(dc);
-
-        dc.setColor(getForegroundColor(), Gfx.COLOR_TRANSPARENT);
-
         // Elevation
         var wide = (dc.getWidth() > 240 && mAscent.length() > 4);
         var ascentFont = wide ? Gfx.FONT_NUMBER_MEDIUM : Gfx.FONT_NUMBER_HOT;
@@ -227,6 +222,18 @@ class VertLoverScreenView extends Ui.DataField {
         if (mDistance.length() > 5) {
             mDistLabel.setFont(Gfx.FONT_LARGE);
         }
+
+        // Update the color of the fields the background color changes
+        var color = getForegroundColor();
+        if (color != mLastFgColor) {
+            for (var i = 0; i < mTextFields.size(); ++i) {
+                mTextFields[i].setColor(color);
+            }
+            mLastFgColor = color;
+        }
+
+        dc.setColor(color, Gfx.COLOR_TRANSPARENT);
+        View.onUpdate(dc);
     }
 
     function getPaceString(speed) {
