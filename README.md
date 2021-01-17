@@ -1,2 +1,60 @@
 # vertlover
-VertLover: Garmin Connect IQ data field for those who like elevation gain
+
+Vertlover is a Garmin Connect IQ data field for those who are
+addicted to elevation gain on their trail runs, hikes, skimo, and other
+mountain adventures.
+
+![vertlover-1.2.0](resources/screenshots/vertlover-1.2-small.png)
+
+The number displayed in the largest font is dedicated to total ascent.  To the
+right of it are the current elevation (top) and the total descent (bottom).  
+
+The two half arcs show battery level (top) and GPS accuracy (bottom).  The
+current heart rate (left) and average heart rate (right) appear in boxes at the
+top, colored by the corresponding heart rate zone (configured in the user's
+Garmin Connect profile).
+
+The top third of the screen shows the elapsed time, current time, and
+temperature.  The bottom third shows current pace (left) and average pace
+(right), and the total distance covered is at the very bottom.  The data screen
+can be configured to show speed instead of pace by editing its settings in the
+Garmin Connect App.
+
+## Installation
+
+1. Use the Garmin Connect App (mobile) or Garmin Express (PC/Mac) to install
+   [the data screen from the Connect IQ
+   store](https://apps.garmin.com/en-US/apps/56e751fa-5fc0-4482-bce8-e32c63567047)
+   to the watch.
+2. Start the activity type where you would like to see the data screen.  Press
+   and hold the menu button, and select the activity type's settings > data
+   screens.
+3. Add a new single-field screen or edit an existing one and then edit
+   Field 1 > Connect-IQ > vertlover.
+
+## Release history:
+
+### 1.2.0 (latest):
+
+- Current and average heart rates are colored by heart rate zone and easier to
+  monitor.
+- Temperature replaces cadence.
+- Total ascent field is bigger than ever!
+- Support for new watch types:
+  - Forerunner 745 / 945
+  - Fenix 6 / 6s / 6 Pro
+  - Fenix 6X Pro / Chronos
+  - Marq Adventurer / Athlete / Aviator / Captain / Commander / Driver /
+    Expedition / Golfer
+  - Venu / Venud
+  - Vivoactive 4 / 4s
+
+### 1.1.1
+
+* Cadence vs. temp selectable in settings.
+* Speed vs pace selectable in settings.
+* Support for Fenix 5s Plus / 5 Plus / 5X Plus.
+
+### 1.0.0
+
+- A screen is born!
