@@ -271,17 +271,21 @@ class HeartRateDisplay extends Ui.Drawable {
     function draw(dc) {
         var disp = mValue != null ? mValue : "--";
 
-        var color = Gfx.COLOR_DK_GRAY;
+        var color;
+        var fgColor = Gfx.COLOR_WHITE;
         if (mValue == null) {
             color = Gfx.COLOR_DK_GRAY;
         } else if (mValue < mZones[0]) {
             color = Gfx.COLOR_DK_GRAY;
         } else if (mValue < mZones[1]) {
-            color = Gfx.COLOR_DK_BLUE;
+            color = Gfx.COLOR_LT_GRAY;
         } else if (mValue < mZones[2]) {
-            color = Gfx.COLOR_DK_GREEN;
+            color = Gfx.COLOR_DK_BLUE;
         } else if (mValue < mZones[3]) {
+            color = Gfx.COLOR_DK_GREEN;
+        } else if (mValue < mZones[4]) {
             color = Gfx.COLOR_ORANGE;
+            fgColor = Gfx.COLOR_BLACK;
         } else {
             color = Gfx.COLOR_DK_RED;
         }
@@ -290,7 +294,7 @@ class HeartRateDisplay extends Ui.Drawable {
         width = dc.getTextWidthInPixels("999", mFont) + mMargin;
         dc.fillRoundedRectangle(locX - width / 2, locY - mHeight / 2,
                                 width, mHeight, mRadius);
-        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+        dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
         dc.drawText(locX, locY, mFont, disp, mAlign);
     }
 }
