@@ -1,7 +1,7 @@
 <iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
     <iq:application entry="VertLoverScreenApp" id="320e7890b30743eb8b1b66ddbacbf3f1"
         launcherIcon="@Drawables.LauncherIcon" name="@Strings.AppName"
-        type="datafield" version="1.2.0">
+        type="datafield" version="1.2.1">
         <iq:products>
             <iq:product id="fr745"/>
             <iq:product id="fr935"/>
