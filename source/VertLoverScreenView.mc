@@ -113,8 +113,6 @@ class VertLoverScreenView extends Ui.DataField {
             mAvgHRField.setValue(info.averageHeartRate);
         }
 
-        // If the user prefers showing temperature in place of cadence, get the internal
-        // device temperature from the SensorHistory class
         if (Toybox has :SensorHistory && Toybox.SensorHistory has :getTemperatureHistory) {
             var it = SensorHistory.getTemperatureHistory({});
             var latest = null;

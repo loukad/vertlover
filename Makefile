@@ -19,7 +19,7 @@ OUTPUT := $(OUTPUT_BASE).prg
 .PHONY: help
 help:
 	@echo 'Make targets:'
-	@echo '  build	- build with debug info'
+	@echo '  build	- build binary for a specific device'
 	@echo '  iq     - package the data screen for the app store'
 	@echo '  run	- launch in simulator'
 	@echo '  clean	- delete all build output'
