@@ -34,7 +34,11 @@ Garmin Connect App.
 
 ## Release history:
 
-### 1.2.1 (latest):
+### 1.2.2 (latest):
+
+- Made heart rate zones follow profile for currently selected sport
+
+### 1.2.1:
 
 - Updated foreground color black for light gray HR zone
 

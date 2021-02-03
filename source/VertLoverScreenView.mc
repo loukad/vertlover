@@ -254,7 +254,7 @@ class HeartRateDisplay extends Ui.Drawable {
 
     function initialize(params) {
         Drawable.initialize(params);
-        mZones = UProf.getHeartRateZones(UProf.HR_ZONE_SPORT_GENERIC);
+        mZones = UProf.getHeartRateZones(UProf.getCurrentSport());
         mFont = params.get(:font);
         mMargin = params has :margin ? params.get(:margin) : 5;
         mRadius = params has :radius ? params.get(:radius) : 5;
