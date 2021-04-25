@@ -4,7 +4,7 @@ Vertlover is a Garmin Connect IQ data field for those who are
 addicted to elevation gain on their trail runs, hikes, skimo, and other
 mountain adventures.
 
-![vertlover-1.3.0](resources/screenshots/vertlover-1.3.jpg)
+<img src="resources/screenshots/vertlover-1.3.jpg" width="200">
 
 The number displayed in the largest font is dedicated to total ascent.  To the
 right of it are the current elevation (top) and the total descent (bottom).  
