@@ -4,7 +4,7 @@ Vertlover is a Garmin Connect IQ data field for those who are
 addicted to elevation gain on their trail runs, hikes, skimo, and other
 mountain adventures.
 
-![vertlover-1.2.0](resources/screenshots/vertlover-1.2-small.png)
+![vertlover-1.3.0](resources/screenshots/vertlover-1.3.jpg)
 
 The number displayed in the largest font is dedicated to total ascent.  To the
 right of it are the current elevation (top) and the total descent (bottom).  
@@ -12,7 +12,8 @@ right of it are the current elevation (top) and the total descent (bottom).
 The two half arcs show battery level (top) and GPS accuracy (bottom).  The
 current heart rate (left) and average heart rate (right) appear in boxes at the
 top, colored by the corresponding heart rate zone (configured in the user's
-Garmin Connect profile).
+Garmin Connect profile).  A horizontal bar appears below the heart rate
+indicators showing the amount of time spent in each heart rate zone.
 
 The top third of the screen shows the elapsed time, current time, and
 temperature.  The bottom third shows current pace (left) and average pace
@@ -34,7 +35,11 @@ Garmin Connect App.
 
 ## Release history:
 
-### 1.2.2 (latest):
+### 1.3.0 (latest):
+- Added heart rate zone distribution bar
+- Added support for Garmin Enduro
+
+### 1.2.2:
 
 - Made heart rate zones follow profile for currently selected sport
 
