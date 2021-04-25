@@ -25,14 +25,22 @@
             <param name="font">Gfx.FONT_MEDIUM</param>
         </drawable>
 
+        <!-- Heart Rate distribution bar -->
+        <drawable id="hrBar" class="HeartRateDist">
+            <param name="locX">.10 * dc.getWidth()</param>
+            <param name="locY">.35 * dc.getHeight()</param>
+            <param name="width">.80 * dc.getWidth()</param>
+            <param name="height">.05 * dc.getHeight()</param>
+        </drawable>
+
         <drawable id="skeleton"></drawable>
 
         <!-- Elevation, ascent, and descent -->
-        <label id="ascent" x="65%" y="50%" font="Gfx.FONT_NUMBER_HOT"
+        <label id="ascent" x="65%" y="52%" font="Gfx.FONT_NUMBER_HOT"
             justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
-        <label id="elevation" x="95%" y="44%" font="Gfx.FONT_MEDIUM"
+        <label id="elevation" x="95%" y="46%" font="Gfx.FONT_MEDIUM"
             justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
-        <label id="descent" x="95%" y="56%" font="Gfx.FONT_MEDIUM"
+        <label id="descent" x="95%" y="58%" font="Gfx.FONT_MEDIUM"
             justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
 
         <!-- Pace or speed -->

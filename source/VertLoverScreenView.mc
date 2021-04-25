@@ -31,6 +31,7 @@ class VertLoverScreenView extends Ui.DataField {
 
     hidden var mBatteryBar, mGPSBar;
     hidden var mCurHRField, mAvgHRField;
+    hidden var mHRDist;
 
     hidden var mLastFgColor;
     hidden var mTextFields;
@@ -81,6 +82,7 @@ class VertLoverScreenView extends Ui.DataField {
 
         mCurHRField = View.findDrawableById("curHR");
         mAvgHRField = View.findDrawableById("avgHR");
+        mHRDist = View.findDrawableById("hrBar");
 
         mBatteryBar = View.findDrawableById("batterybar");
         mGPSBar = View.findDrawableById("gpsbar");
@@ -108,6 +110,9 @@ class VertLoverScreenView extends Ui.DataField {
 
         if (info has :currentHeartRate) {
             mCurHRField.setValue(info.currentHeartRate);
+            if (info.timerState == 3) { // activity is on and recording
+                mHRDist.addValue(info.currentHeartRate);
+            }
         }
         if (info has :averageHeartRate) {
             mAvgHRField.setValue(info.averageHeartRate);
@@ -245,8 +250,31 @@ class VertLoverScreenView extends Ui.DataField {
     }
 }
 
-class HeartRateDisplay extends Ui.Drawable {
+class HeartRateZoneColor {
     hidden var mZones;
+    var COLORS = [Gfx.COLOR_DK_GRAY, Gfx.COLOR_LT_GRAY,
+        Gfx.COLOR_DK_BLUE, Gfx.COLOR_DK_GREEN,
+        Gfx.COLOR_ORANGE, Gfx.COLOR_DK_RED, Gfx.COLOR_DK_RED];
+
+    function initialize() {
+        mZones = UProf.getHeartRateZones(UProf.getCurrentSport());
+    }
+
+    function getColor(value) {
+        if (value == null) {
+            return COLORS[0];
+        }
+        for (var i = 0; i < mZones.size(); i++) {
+            if (value < mZones[i]) {
+                return COLORS[i];
+            }
+        }
+        return COLORS[COLORS.size() - 1];
+    }
+}
+
+class HeartRateDisplay extends Ui.Drawable {
+    hidden var mhrzc;
     hidden var mFont, mMargin, mRadius;
     hidden var mAlign;
     hidden var mValue;
@@ -254,7 +282,7 @@ class HeartRateDisplay extends Ui.Drawable {
 
     function initialize(params) {
         Drawable.initialize(params);
-        mZones = UProf.getHeartRateZones(UProf.getCurrentSport());
+        mhrzc = new HeartRateZoneColor();
         mFont = params.get(:font);
         mMargin = params has :margin ? params.get(:margin) : 5;
         mRadius = params has :radius ? params.get(:radius) : 5;
@@ -269,24 +297,12 @@ class HeartRateDisplay extends Ui.Drawable {
     function draw(dc) {
         var disp = mValue != null ? mValue : "--";
 
-        var color;
+        var color = mhrzc.getColor(mValue);
         var fgColor = Gfx.COLOR_WHITE;
-        if (mValue == null) {
-            color = Gfx.COLOR_DK_GRAY;
-        } else if (mValue < mZones[0]) {
-            color = Gfx.COLOR_DK_GRAY;
-        } else if (mValue < mZones[1]) {
-            color = Gfx.COLOR_LT_GRAY;
+
+        // Make the text easier to read against low-contrast color combos
+        if (color == Gfx.COLOR_LT_GRAY || color == Gfx.COLOR_ORANGE) {
             fgColor = Gfx.COLOR_BLACK;
-        } else if (mValue < mZones[2]) {
-            color = Gfx.COLOR_DK_BLUE;
-        } else if (mValue < mZones[3]) {
-            color = Gfx.COLOR_DK_GREEN;
-        } else if (mValue < mZones[4]) {
-            color = Gfx.COLOR_ORANGE;
-            fgColor = Gfx.COLOR_BLACK;
-        } else {
-            color = Gfx.COLOR_DK_RED;
         }
 
         dc.setColor(color, color);
@@ -295,6 +311,52 @@ class HeartRateDisplay extends Ui.Drawable {
                                 width, mHeight, mRadius);
         dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
         dc.drawText(locX, locY, mFont, disp, mAlign);
+    }
+}
+
+class HeartRateDist extends Ui.Drawable {
+    hidden var mWidth, mHeight;
+    hidden var mhrzc;
+    hidden var mZones;
+    hidden var mZoneCounts;
+    hidden var mTotal;
+
+    function initialize(params) {
+        Drawable.initialize(params);
+        mWidth = params.get(:width);
+        mHeight = params.get(:height);
+        mhrzc = new HeartRateZoneColor();
+        mZones = UProf.getHeartRateZones(UProf.getCurrentSport());
+        mZoneCounts = [0, 0, 0, 0, 0, 0];
+        mTotal = 0;
+    }
+
+    function addValue(value) {
+        if (value == null) {
+            return;
+        }
+
+        for (var i = 0; i < mZones.size(); i++) {
+            if (value < mZones[i]) {
+                mZoneCounts[i] += 1;
+                mTotal += 1;
+                break;
+            }
+        }
+    }
+
+    function draw(dc) {
+        var x = locX;
+        dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_DK_GRAY);
+        dc.fillRectangle(locX, locY, mWidth, mHeight);
+        for (var i = 0; i < mZoneCounts.size(); i++) {
+            if (mZoneCounts[i] > 0) {
+                var curWidth = mZoneCounts[i] * mWidth /  mTotal;
+                dc.setColor(mhrzc.COLORS[i], mhrzc.COLORS[i]);
+                dc.fillRectangle(x, locY, curWidth, mHeight);
+                x += curWidth;
+            }
+        }
     }
 }
 
