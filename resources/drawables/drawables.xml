@@ -2,7 +2,10 @@
     <bitmap id="LauncherIcon" filename="launcher_icon.png" />
     <!-- Elevation rectangle -->
     <drawable-list id="skeleton">
-        <shape type="rectangle" x="left" y="35%" width="110%" height="32%"
+        <shape type="rectangle" x="left" y="35%" width="110%" height="2"
+            border_width="1" border_color="Gfx.COLOR_LT_GRAY"
+            color="Gfx.COLOR_TRANSPARENT"/>
+        <shape type="rectangle" x="left" y="67%" width="110%" height="2"
             border_width="1" border_color="Gfx.COLOR_LT_GRAY"
             color="Gfx.COLOR_TRANSPARENT"/>
     </drawable-list>

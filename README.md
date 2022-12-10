@@ -9,9 +9,8 @@ mountain adventures.
 The number displayed in the largest font is dedicated to total ascent.  To the
 right of it are the current elevation (top) and the total descent (bottom).  
 
-The two half arcs show battery level (top) and GPS accuracy (bottom).  The
-current heart rate (left) and average heart rate (right) appear in boxes at the
-top, colored by the corresponding heart rate zone (configured in the user's
+The current heart rate (left) and average heart rate (right) appear in boxes at
+the top, colored by the corresponding heart rate zone (configured in the user's
 Garmin Connect profile).  A horizontal bar appears below the heart rate
 indicators showing the amount of time spent in each heart rate zone.
 
@@ -35,7 +34,14 @@ Garmin Connect App.
 
 ## Release history:
 
-### 1.3.0 (latest):
+### 1.4.0 (latest)
+- Removed battery and GPS accuracy bars
+- Fixed reset issues with HR zone distribution bar
+- Added support for Resume Later
+- Added support for descent*, fr955, fenix7*, enduro2, epix2, marq2 watches
+- Other layout enhancements
+
+### 1.3.0:
 - Added heart rate zone distribution bar
 - Added support for Garmin Enduro
 

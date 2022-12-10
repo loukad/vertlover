@@ -36,7 +36,7 @@
         <drawable id="skeleton"></drawable>
 
         <!-- Elevation, ascent, and descent -->
-        <label id="ascent" x="65%" y="52%" font="Gfx.FONT_NUMBER_HOT"
+        <label id="ascent" x="62%" y="53%" font="Gfx.FONT_NUMBER_HOT"
             justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
         <label id="elevation" x="95%" y="46%" font="Gfx.FONT_MEDIUM"
             justification="Gfx.TEXT_JUSTIFY_RIGHT|Gfx.TEXT_JUSTIFY_VCENTER" />
@@ -54,19 +54,5 @@
         <!-- Distance -->
         <label id="distance" x="50%" y="87%" font="Gfx.FONT_NUMBER_MEDIUM"
             justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" />
-
-        <!-- Arc indicators -->
-        <drawable class="ProgressArcBar" id="batterybar">
-            <param name="color">Gfx.COLOR_GREEN</param>
-            <param name="borderColor">Gfx.COLOR_DK_GREEN</param>
-            <param name="clockwise">true</param>
-            <param name="thickness">5</param>
-        </drawable>
-        <drawable class="ProgressArcBar" id="gpsbar">
-            <param name="color">Gfx.COLOR_BLUE</param>
-            <param name="borderColor">Gfx.COLOR_DK_BLUE</param>
-            <param name="clockwise">false</param>
-            <param name="thickness">5</param>
-        </drawable>
     </layout>
 </layouts>

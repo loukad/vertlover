@@ -5,11 +5,22 @@ using Toybox.SensorHistory;
 using Toybox.UserProfile as UProf;
 
 class VertLoverScreenApp extends App.AppBase {
+    hidden var mDataField;
+
     function initialize() {
         App.AppBase.initialize();
+        mDataField = new VertLoverScreenView();
     }
+
+    function onStart(state) {
+        mDataField.onStart(self, state);
+    }
+    function onStop(state) {
+        mDataField.onStop(self, state);
+    }
+
     function getInitialView() {
-        return [ new VertLoverScreenView() ];
+        return [ mDataField ];
     }
 }
 
@@ -29,9 +40,12 @@ class VertLoverScreenView extends Ui.DataField {
     hidden var mCurPaceLabel, mAvgPaceLabel, mPaceUnitLabel;
     hidden var mDistLabel;
 
-    hidden var mBatteryBar, mGPSBar;
     hidden var mCurHRField, mAvgHRField;
-    hidden var mHRDist;
+
+    // HR Bar drawable and HR zone counts
+    hidden var mHRDistBar;
+    hidden var mZoneCounts;
+    hidden var mZoneTotals;
 
     hidden var mLastFgColor;
     hidden var mTextFields;
@@ -59,6 +73,41 @@ class VertLoverScreenView extends Ui.DataField {
         mGPSAccuracy = 0;
     }
 
+    function initZoneCounts() {
+        mZoneCounts = [0, 0, 0, 0, 0, 0];
+        mZoneTotals = 0;
+        if (mHRDistBar != null) {
+            mHRDistBar.updateZones(mZoneCounts, mZoneTotals);
+        }
+    }
+    function zoneCountPropertyKey(level) {
+        return "hrZoneCount" + level;
+    }
+
+    function onStart(app, state) {
+        // Try to restore any saved HR zone counts
+        var savedZoneTotals = app.getProperty("hrZoneTotals");
+        if (savedZoneTotals != null) {
+            initZoneCounts();
+            mZoneTotals = savedZoneTotals;
+        }
+        for (var i = 0; mZoneCounts != null && i < mZoneCounts.size(); i++) {
+            var zoneCount = app.getProperty(zoneCountPropertyKey(i));
+            if (zoneCount != null) {
+                mZoneCounts[i] = zoneCount;
+            }
+        }
+    }
+
+    function onStop(app, state) {
+        // Persist heart rate distribution counts in case activity is
+        // resumed later
+        app.setProperty("hrZoneTotals", mZoneTotals);
+        for (var i = 0; mZoneCounts != null && i < mZoneCounts.size(); i++) {
+            app.setProperty(zoneCountPropertyKey(i), mZoneCounts[i]);
+        }
+    }
+
     // Called any time the draw context is changed.
     function onLayout(dc) {
         View.setLayout(Rez.Layouts.MainLayout(dc));
@@ -82,10 +131,7 @@ class VertLoverScreenView extends Ui.DataField {
 
         mCurHRField = View.findDrawableById("curHR");
         mAvgHRField = View.findDrawableById("avgHR");
-        mHRDist = View.findDrawableById("hrBar");
-
-        mBatteryBar = View.findDrawableById("batterybar");
-        mGPSBar = View.findDrawableById("gpsbar");
+        mHRDistBar = View.findDrawableById("hrBar");
 
         // System settings cache
         var settings = System.getDeviceSettings();
@@ -95,8 +141,6 @@ class VertLoverScreenView extends Ui.DataField {
 
         // Settings
         mSpeedNotPace = Application.Properties.getValue("speedNotPace");
-
-        return true;
     }
 
     // The given info object contains all the current workout information.
@@ -108,11 +152,29 @@ class VertLoverScreenView extends Ui.DataField {
             return;
         }
 
+        if (info has :elapsedTime && info.elapsedTime == 0) {
+            initialize();
+
+            // Only initialize HR zone counts when the activity is fresh. This
+            // is a workaround for Garmin's CDK calling initialize() on any
+            // screen change
+            initZoneCounts();
+        }
+
         if (info has :currentHeartRate) {
             mCurHRField.setValue(info.currentHeartRate);
-            if (info.timerState == 3) { // activity is on and recording
-                mHRDist.addValue(info.currentHeartRate);
+            if (info.timerState == 3 && info.currentHeartRate != null) { 
+                // If activity is on and recording, update the HR zone distribution
+                var zones = UProf.getHeartRateZones(UProf.getCurrentSport());
+                for (var i = 0; zones != null && i < zones.size(); i++) {
+                    if (info.currentHeartRate < zones[i] && i < mZoneCounts.size()) {
+                        mZoneCounts[i] += 1;
+                        mZoneTotals += 1;
+                        break;
+                    }
+                }
             }
+            mHRDistBar.updateZones(mZoneCounts, mZoneTotals);
         }
         if (info has :averageHeartRate) {
             mAvgHRField.setValue(info.averageHeartRate);
@@ -197,15 +259,11 @@ class VertLoverScreenView extends Ui.DataField {
 
         mTempLabel.setText(mTemp + "°" + (mIsCelsius ? "C" : "F"));
 
-        // Battery and GPS bars
-        mBatteryBar.setPercent(System.getSystemStats().battery / 100.0);
-        mGPSBar.setPercent(mGPSAccuracy);
-
         // Elevation
         var wide = (dc.getWidth() > 240 && mAscent.length() > 4);
         var ascentFont = wide ? Gfx.FONT_NUMBER_MEDIUM : Gfx.FONT_NUMBER_HOT;
         mAscentLabel.setFont(ascentFont);
-        mAscentLabel.setText((mAscent.length() < 5 ? "+" : "") + mAscent);
+        mAscentLabel.setText((mAscent.length() < 4 ? "+" : "") + mAscent);
         mDescentLabel.setText("-" + mDescent);
         mElevationLabel.setText(mElevation);
 
@@ -251,21 +309,18 @@ class VertLoverScreenView extends Ui.DataField {
 }
 
 class HeartRateZoneColor {
-    hidden var mZones;
     var COLORS = [Gfx.COLOR_DK_GRAY, Gfx.COLOR_LT_GRAY,
         Gfx.COLOR_DK_BLUE, Gfx.COLOR_DK_GREEN,
         Gfx.COLOR_ORANGE, Gfx.COLOR_DK_RED, Gfx.COLOR_DK_RED];
-
-    function initialize() {
-        mZones = UProf.getHeartRateZones(UProf.getCurrentSport());
-    }
 
     function getColor(value) {
         if (value == null) {
             return COLORS[0];
         }
-        for (var i = 0; i < mZones.size(); i++) {
-            if (value < mZones[i]) {
+
+        var zones = UProf.getHeartRateZones(UProf.getCurrentSport());
+        for (var i = 0; i < zones.size(); i++) {
+            if (value < zones[i]) {
                 return COLORS[i];
             }
         }
@@ -317,7 +372,6 @@ class HeartRateDisplay extends Ui.Drawable {
 class HeartRateDist extends Ui.Drawable {
     hidden var mWidth, mHeight;
     hidden var mhrzc;
-    hidden var mZones;
     hidden var mZoneCounts;
     hidden var mTotal;
 
@@ -326,31 +380,20 @@ class HeartRateDist extends Ui.Drawable {
         mWidth = params.get(:width);
         mHeight = params.get(:height);
         mhrzc = new HeartRateZoneColor();
-        mZones = UProf.getHeartRateZones(UProf.getCurrentSport());
-        mZoneCounts = [0, 0, 0, 0, 0, 0];
-        mTotal = 0;
     }
 
-    function addValue(value) {
-        if (value == null) {
-            return;
-        }
-
-        for (var i = 0; i < mZones.size(); i++) {
-            if (value < mZones[i]) {
-                mZoneCounts[i] += 1;
-                mTotal += 1;
-                break;
-            }
-        }
+    function updateZones(zoneCounts, total) {
+        mZoneCounts = zoneCounts;
+        mTotal = total;
     }
 
     function draw(dc) {
         var x = locX;
         dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_DK_GRAY);
         dc.fillRectangle(locX, locY, mWidth, mHeight);
-        for (var i = 0; i < mZoneCounts.size(); i++) {
-            if (mZoneCounts[i] > 0) {
+
+        for (var i = 0; mZoneCounts != null && i < mZoneCounts.size(); i++) {
+            if (mZoneCounts[i] > 0 && mTotal > 0) {
                 var curWidth = mZoneCounts[i] * mWidth /  mTotal;
                 dc.setColor(mhrzc.COLORS[i], mhrzc.COLORS[i]);
                 dc.fillRectangle(x, locY, curWidth, mHeight);

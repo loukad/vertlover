@@ -8,6 +8,7 @@ CIQ_DEBUG ?= 0
 OUTPUT_BASE := ./bin/$(PROJECT)
 OUTPUT_RELEASE := ./bin/$(PROJECT).iq
 RELEASE_FLAG := -r
+TYPE_CHECK := -l0
 
 ifneq ($(CIQ_DEBUG), 0)
 	OUTPUT_BASE := $(OUTPUT_BASE).debug
@@ -19,10 +20,10 @@ OUTPUT := $(OUTPUT_BASE).prg
 .PHONY: help
 help:
 	@echo 'Make targets:'
-	@echo '  build	- build binary for a specific device'
-	@echo '  iq     - package the data screen for the app store'
-	@echo '  run	- launch in simulator'
-	@echo '  clean	- delete all build output'
+	@echo '  build - build binary for a specific device'
+	@echo '  iq    - package the data screen for the app store'
+	@echo '  run   - launch in simulator'
+	@echo '  clean - delete all build output'
 
 dev_prereqs:
 ifndef CIQ_DEVKEY
@@ -36,7 +37,7 @@ ifndef CIQ_DEVICE
 endif
 
 ${OUTPUT}: $(MANIFEST) $(RESOURCES) $(SOURCES) build_prereqs
-	monkeyc -w $(RELEASE_FLAG) -o $@ -d $(CIQ_DEVICE) -y $(CIQ_DEVKEY) -f $(JUNGLE)
+	monkeyc -w $(TYPE_CHECK) $(RELEASE_FLAG) -o $@ -d $(CIQ_DEVICE) -y $(CIQ_DEVKEY) -f $(JUNGLE)
 
 build: $(OUTPUT)
 
@@ -45,7 +46,7 @@ run: $(OUTPUT)
 	monkeydo $(OUTPUT) $(CIQ_DEVICE)
 
 ${OUTPUT_RELEASE}: $(MANIFEST) $(RESOURCES) $(SOURCES) dev_prereqs
-	monkeyc -e -w -r -o $@ -y $(CIQ_DEVKEY) -f $(JUNGLE)
+	monkeyc -e -w $(TYPE_CHECK) -r -o $@ -y $(CIQ_DEVKEY) -f $(JUNGLE)
 
 iq: $(OUTPUT_RELEASE)
 
