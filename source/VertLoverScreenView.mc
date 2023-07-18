@@ -161,6 +161,11 @@ class VertLoverScreenView extends Ui.DataField {
             initZoneCounts();
         }
 
+        // If the layout hasn't been initialized, don't try to update the fields
+        if (mCurHRField == null) {
+            return;
+        }
+
         if (info has :currentHeartRate) {
             mCurHRField.setValue(info.currentHeartRate);
             if (info.timerState == 3 && info.currentHeartRate != null) { 
