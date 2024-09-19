@@ -34,7 +34,10 @@ Garmin Connect App.
 
 ## Release history:
 
-### 1.4.0 (latest)
+### 1.5.0 (latest)
+- Added support for Enduro 3 and Fenix 8 watches
+
+### 1.4.2
 - Removed battery and GPS accuracy bars
 - Fixed reset issues with HR zone distribution bar
 - Added support for Resume Later
